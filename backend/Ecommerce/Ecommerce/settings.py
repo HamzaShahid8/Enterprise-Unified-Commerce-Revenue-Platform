@@ -162,14 +162,9 @@ WSGI_APPLICATION = 'Ecommerce.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('NAME'), # database name
-        'USER': os.getenv('USER'), # user name
-        'PASSWORD': os.getenv('PASSWORD'), # password
-        'HOST': os.getenv('HOST'), # host
-        'PORT': os.getenv('PORT'), # port
-    }
+    'default': dj_database_url.parse(
+        os.getenv('DATABASE_URL')
+    )
 }
 
 CACHES = {
