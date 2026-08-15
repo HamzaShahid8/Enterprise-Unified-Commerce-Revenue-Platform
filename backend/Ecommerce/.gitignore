@@ -32,3 +32,6 @@ htmlcov/
 # Generated files
 staticfiles/
 media/
+
+.vercel
+.env*
