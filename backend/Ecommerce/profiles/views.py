@@ -98,7 +98,7 @@ class ManagerProfileViewset(viewsets.ModelViewSet):
         user = self.request.user
         
         if user.role.name == 'manager':
-                return ManagerProfile.objects.filter(user=user)
+            return ManagerProfile.objects.filter(user=user)
     
     def perform_create(self, serializer):
             manager = serializer.save(user=self.request.user)

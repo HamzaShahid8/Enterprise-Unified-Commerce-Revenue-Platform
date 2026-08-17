@@ -19,3 +19,4 @@ django-cors-headers
 vercel
 google-auth
 google-auth-oauthlib
+django-redis

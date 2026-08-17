@@ -12,6 +12,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from monitoring.models import ActivityLogs
 from monitoring.utils import create_log
+from django.core.cache import cache
 
 # Create your views here.
 
@@ -180,6 +181,47 @@ class ProductViewSet(viewsets.ModelViewSet):
         if self.action in ['list', 'retrieve']:
             return ProductReadSerializer
         return ProductWriteSerializer
+    
+    def list(self, request, *args, **kwargs):
+        
+        query_params = request.query_params.urlencode()
+        
+        cache_key = f"products:{query_params}"
+        
+        cached_data = cache.get(cache_key)
+        
+        # database ko hit ni krengy agr redis may h data available
+        if cached_data is not None:
+            return Response(cached_data)
+        
+        # else database ko hit
+        queryset = self.filter_queryset(self.get_queryset())
+        
+        page = self.paginate_queryset(queryset)
+        
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+            
+            cache.set(
+                cache_key,
+                response.data,
+                timeout=60
+            )
+            
+            return Response
+        
+        serializer = self.get_serializer(queryset, many=True)
+        
+        cache.set(
+            cache_key,
+            serializer.data,
+            timeout=60
+        )
+        
+        return Response(
+            serializer.data
+        )
     
     def create(self, request, *args, **kwargs):
         
