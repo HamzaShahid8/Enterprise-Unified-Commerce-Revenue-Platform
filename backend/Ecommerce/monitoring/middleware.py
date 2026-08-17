@@ -26,12 +26,14 @@ class RequestLoggingMiddleware:
             user_id = 'anonymous'
             
         logger.info(
-            "%s %s | user=%s | status=%s | duration=%s",
-            request.method,
-            request.path,
-            user_id,
-            response.status_code,
-            duration,
+            'HTTP request completed',
+            extra={
+                'method': request.method,
+                'path': request.path,
+                'user': user_id,
+                'status': response.status_code,
+                'duration': round(duration, 3),
+            }
         )
         
         return response

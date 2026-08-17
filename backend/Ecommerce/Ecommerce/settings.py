@@ -15,33 +15,62 @@ import os
 from dotenv import load_dotenv
 import dj_database_url
 from datetime import timedelta
+import json
+import logging
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+class JSONFormatter(logging.Formatter):
+
+    def format(self, record):
+
+        log_data = {
+            "timestamp": self.formatTime(record),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+
+        if hasattr(record, "method"):
+            log_data["method"] = record.method
+
+        if hasattr(record, "path"):
+            log_data["path"] = record.path
+
+        if hasattr(record, "user_id"):
+            log_data["user_id"] = record.user_id
+
+        if hasattr(record, "status"):
+            log_data["status"] = record.status
+
+        if hasattr(record, "duration"):
+            log_data["duration"] = record.duration
+
+        return json.dumps(log_data)
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
 
     "formatters": {
-        "verbose": {
-            "format": "{asctime} | {levelname} | {name} | {message}",
-            "style": "{",
-        },
+    "json": {
+        "()": "Ecommerce.settings.JSONFormatter",
     },
+},
 
     "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
-
-        "file": {
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "logs" / "django.log",
-            "formatter": "verbose",
-        },
+    "console": {
+        "class": "logging.StreamHandler",
+        "formatter": "json",
     },
+
+    "file": {
+        "class": "logging.FileHandler",
+        "filename": BASE_DIR / "logs" / "django.log",
+        "formatter": "json",
+    },
+},
 
     "loggers": {
     "orders": {
