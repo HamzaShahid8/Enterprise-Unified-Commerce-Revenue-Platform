@@ -5,12 +5,17 @@ from products.models import Product
 from .serializers import *
 from billing.models import Invoice
 from billing.services import *
+import logging
+
+logger = logging.getLogger(__name__)
 
 class OrderService:
 
     @staticmethod
     @transaction.atomic
     def create_order(validated_data, user, idempotency_key):
+        
+        logger.debug("Starting order creation: user_id=%s", user.id)
         
         # check existing
         existing = IdempotancyKey.objects.filter(
@@ -19,6 +24,7 @@ class OrderService:
         ).first()
         
         if existing:
+            logger.warning("Duplicate idempotent order request: user_id=%s", user.id)
             return existing.response_data, existing.status_code
 
         items = validated_data.pop("items", [])
@@ -66,6 +72,11 @@ class OrderService:
             response_data=response_data,
             status_code=201
         )
+        
+        logger.info(
+            "Order created: order_id=%s user_id=%s", order.id, user.id
+        )
+        
         return response_data, 201
 
 
