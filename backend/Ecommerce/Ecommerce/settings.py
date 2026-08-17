@@ -44,12 +44,18 @@ LOGGING = {
     },
 
     "loggers": {
-        "orders": {
-            "handlers": ["console", "file"],
-            "level": "INFO",
-            "propagate": False,
-        },
+    "orders": {
+        "handlers": ["console", "file"],
+        "level": "INFO",
+        "propagate": False,
     },
+
+    "django.request": {
+        "handlers": ["console", "file"],
+        "level": "INFO",
+        "propagate": False,
+    },
+},
 }
 
 load_dotenv(BASE_DIR / '.env')
@@ -172,6 +178,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'monitoring.middleware.RequestLoggingMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
